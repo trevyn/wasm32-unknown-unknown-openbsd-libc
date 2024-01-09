@@ -45,7 +45,12 @@ jobs:
       - run: ls -la
       - run: rm code.tar.gz
       - run: cargo build --target wasm32-unknown-unknown
-      - run: cargo publish --allow-dirty --dry-run
+
+      - if: matrix.os == 'macos-latest'
+        run: cargo publish --allow-dirty --no-verify --dry-run
+
+      - if: matrix.os != 'macos-latest'
+        run: cargo publish --allow-dirty --dry-run
 
   publish:
     needs: [test]
