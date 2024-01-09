@@ -1,0 +1,75 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  schedule: [cron: "40 1 * * *"]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  OPENBSD_COMMIT: 6354f7248140d3c98676a00bc94948c0a0e89826
+
+jobs:
+  test:
+    name: test ${{ matrix.os }} rust ${{ matrix.rust }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        rust: [stable, beta, nightly]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Homebrew llvm on macOS
+        if: matrix.os == 'macos-latest'
+        run: brew install llvm
+
+      - run: rustup default ${{ matrix.rust }}
+      - run: rustup update ${{ matrix.rust }}
+      - run: rustup target add wasm32-unknown-unknown
+      - run: curl -L -o code.tar.gz https://github.com/openbsd/src/archive/${{env.OPENBSD_COMMIT}}.tar.gz
+      - run: tar xzf code.tar.gz src-${{env.OPENBSD_COMMIT}}/include/ src-${{env.OPENBSD_COMMIT}}/sys/sys/ src-${{env.OPENBSD_COMMIT}}/lib/libc/string/ src-${{env.OPENBSD_COMMIT}}/lib/libc/stdlib/
+      - run: mv src-${{env.OPENBSD_COMMIT}} openbsd-src
+
+      - run: find openbsd-src -type f -name "*.3" -exec rm -f {} +
+      - run: rm openbsd-src/sys/sys/videoio.h
+      - run: rm openbsd-src/sys/sys/sysctl.h
+      - run: rm openbsd-src/lib/libc/stdlib/malloc.c
+
+      - run: rm code.tar.gz
+      - run: cargo build --target wasm32-unknown-unknown
+
+      - if: matrix.os == 'macos-latest'
+        run: cargo publish --allow-dirty --no-verify --dry-run
+
+      - if: matrix.os != 'macos-latest'
+        run: cargo publish --allow-dirty --dry-run
+
+  publish:
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.head_commit.message, 'wasm32-unknown-unknown-openbsd-libc@') && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: rustup default stable
+      - run: rustup update stable
+      - run: curl -L -o code.tar.gz https://github.com/openbsd/src/archive/${{env.OPENBSD_COMMIT}}.tar.gz
+      - run: tar xzf code.tar.gz src-${{env.OPENBSD_COMMIT}}/include/ src-${{env.OPENBSD_COMMIT}}/sys/sys/ src-${{env.OPENBSD_COMMIT}}/lib/libc/string/ src-${{env.OPENBSD_COMMIT}}/lib/libc/stdlib/
+      - run: mv src-${{env.OPENBSD_COMMIT}} openbsd-src
+
+      - run: find openbsd-src -type f -name "*.3" -exec rm -f {} +
+      - run: rm openbsd-src/sys/sys/videoio.h
+      - run: rm openbsd-src/sys/sys/sysctl.h
+      - run: rm openbsd-src/lib/libc/stdlib/malloc.c
+
+      - run: rm code.tar.gz
+
+      - run: cargo publish --allow-dirty --token ${{ secrets.CARGO_TOKEN }}
