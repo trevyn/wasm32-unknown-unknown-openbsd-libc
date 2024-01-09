@@ -24,3 +24,9 @@ typedef unsigned long __psize_t;
 
 typedef unsigned long __size_t;
 typedef long __ssize_t;
+
+typedef float __float_t;
+typedef double __double_t;
+
+struct __va_list_tag;
+typedef struct __va_list_tag *__va_list;

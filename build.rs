@@ -1,22 +1,24 @@
 use std::env;
 
 fn main() {
-    if env::var("TARGET").map_or(false, |t| t.starts_with("wasm")) {
-        // Apple clang doesn't support wasm32, so use Homebrew clang by default.
-        if env::var("HOST") == Ok("x86_64-apple-darwin".to_string()) {
-            if env::var("CC").is_err() {
-                std::env::set_var("CC", "/usr/local/opt/llvm/bin/clang");
-            }
-            if env::var("AR").is_err() {
-                std::env::set_var("AR", "/usr/local/opt/llvm/bin/llvm-ar");
-            }
-        } else if env::var("HOST") == Ok("aarch64-apple-darwin".to_string()) {
-            if env::var("CC").is_err() {
-                std::env::set_var("CC", "/opt/homebrew/opt/llvm/bin/clang");
-            }
-            if env::var("AR").is_err() {
-                std::env::set_var("AR", "/opt/homebrew/opt/llvm/bin/llvm-ar");
-            }
+    if !env::var("TARGET").map_or(false, |t| t.starts_with("wasm")) {
+        return;
+    }
+
+    // Apple clang doesn't support wasm32, so use Homebrew clang by default.
+    if env::var("HOST") == Ok("x86_64-apple-darwin".to_string()) {
+        if env::var("CC").is_err() {
+            std::env::set_var("CC", "/usr/local/opt/llvm/bin/clang");
+        }
+        if env::var("AR").is_err() {
+            std::env::set_var("AR", "/usr/local/opt/llvm/bin/llvm-ar");
+        }
+    } else if env::var("HOST") == Ok("aarch64-apple-darwin".to_string()) {
+        if env::var("CC").is_err() {
+            std::env::set_var("CC", "/opt/homebrew/opt/llvm/bin/clang");
+        }
+        if env::var("AR").is_err() {
+            std::env::set_var("AR", "/opt/homebrew/opt/llvm/bin/llvm-ar");
         }
     }
 
