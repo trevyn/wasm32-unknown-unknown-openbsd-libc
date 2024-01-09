@@ -21,6 +21,7 @@ fn main() {
     }
 
     let sources = [
+        "stdlib/heapsort.c",
         "stdlib/qsort.c",
         "string/bcmp.c",
         "string/bcmp.c",
@@ -85,6 +86,7 @@ fn main() {
         .include("openbsd-src/include")
         .include("include")
         .files(sources)
+        .file("src/errno.c")
         .flag("-w")
         .compile("wasm32-unknown-unknown-openbsd-libc");
 }
