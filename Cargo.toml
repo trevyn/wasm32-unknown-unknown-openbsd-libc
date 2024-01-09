@@ -1,0 +1,10 @@
+[package]
+description = "The parts of OpenBSD libc that make sense on wasm32-unknown-unknown."
+edition = "2018"
+license = "BSD-3-Clause AND ISC AND MIT"
+name = "wasm32-unknown-unknown-openbsd-libc"
+repository = "https://github.com/trevyn/wasm32-unknown-unknown-openbsd-libc"
+version = "0.1.0"
+
+[build-dependencies]
+cc = "1"
