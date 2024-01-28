@@ -26,8 +26,6 @@ fn main() {
         "stdlib/heapsort.c",
         "stdlib/qsort.c",
         "string/bcmp.c",
-        "string/bcmp.c",
-        "string/bcmp.c",
         "string/bcopy.c",
         "string/bzero.c",
         "string/explicit_bzero.c",
@@ -84,11 +82,14 @@ fn main() {
         .collect::<Vec<_>>();
 
     cc::Build::new()
-        .include("openbsd-src/sys")
-        .include("openbsd-src/include")
         .include("include")
         .files(sources)
         .file("src/errno.c")
         .flag("-w")
         .compile("wasm32-unknown-unknown-openbsd-libc");
+
+    println!(
+        "cargo:include={}/include",
+        env::var("CARGO_MANIFEST_DIR").unwrap()
+    );
 }

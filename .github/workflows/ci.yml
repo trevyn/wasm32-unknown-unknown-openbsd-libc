@@ -42,6 +42,9 @@ jobs:
       - run: rm openbsd-src/sys/sys/sysctl.h
       - run: rm openbsd-src/lib/libc/stdlib/malloc.c
 
+      - run: mv openbsd-src/sys/* include
+      - run: mv openbsd-src/include/* include
+
       - run: rm code.tar.gz
       - run: cargo build --target wasm32-unknown-unknown
 
@@ -69,6 +72,9 @@ jobs:
       - run: rm openbsd-src/sys/sys/videoio.h
       - run: rm openbsd-src/sys/sys/sysctl.h
       - run: rm openbsd-src/lib/libc/stdlib/malloc.c
+
+      - run: mv openbsd-src/sys/* include
+      - run: mv openbsd-src/include/* include
 
       - run: rm code.tar.gz
 
