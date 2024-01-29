@@ -85,7 +85,7 @@ fn main() {
         .include("include")
         .files(sources)
         .file("src/errno.c")
-        .flag("-w")
+        .extra_warnings(false)
         .compile("wasm32-unknown-unknown-openbsd-libc");
 
     println!(
