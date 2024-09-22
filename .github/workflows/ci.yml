@@ -49,10 +49,10 @@ jobs:
       - run: cargo build --target wasm32-unknown-unknown
 
       - if: matrix.os == 'macos-latest'
-        run: cargo publish --allow-dirty --no-verify --dry-run
+        run: cargo package --allow-dirty --no-verify
 
       - if: matrix.os != 'macos-latest'
-        run: cargo publish --allow-dirty --dry-run
+        run: cargo package --allow-dirty
 
   publish:
     needs: [test]
